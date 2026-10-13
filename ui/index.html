@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Fila de Impressão</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="panel" id="panel">
+    <header class="top">
+      <div class="state" id="state" data-tone="idle">
+        <span class="state-dot"></span>
+        <span class="state-text" id="state-text">Carregando</span>
+      </div>
+      <button class="icon-button" id="settings-toggle" aria-label="Ajustes" aria-expanded="false">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h9M15 6h2M3 14h2M8 14h9" /><circle cx="13.5" cy="6" r="1.8" /><circle cx="6.5" cy="14" r="1.8" /></svg>
+      </button>
+    </header>
+
+    <section class="hero" id="hero" data-tone="idle">
+      <svg class="marks" viewBox="0 0 340 170" aria-hidden="true">
+        <g class="mark" transform="translate(22 24)"><circle r="7" /><path d="M-12 0h24M0 -12v24" /></g>
+        <g class="mark" transform="translate(318 146)"><circle r="7" /><path d="M-12 0h24M0 -12v24" /></g>
+        <g class="swatches" transform="translate(286 18)">
+          <rect width="9" height="9" class="c" /><rect x="11" width="9" height="9" class="m" /><rect x="22" width="9" height="9" class="y" /><rect x="33" width="9" height="9" class="k" />
+        </g>
+      </svg>
+
+      <svg class="printer" viewBox="0 0 240 150" role="img" aria-label="Impressora">
+        <defs>
+          <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf9f4" /><stop offset="1" stop-color="#cfcabf" /></linearGradient>
+          <linearGradient id="lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#e4e0d6" /></linearGradient>
+          <linearGradient id="slot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0b0b" /><stop offset="1" stop-color="#2b2927" /></linearGradient>
+          <clipPath id="feed"><rect x="60" y="0" width="120" height="43" /></clipPath>
+          <clipPath id="exit"><rect x="48" y="98" width="144" height="60" /></clipPath>
+        </defs>
+        <ellipse class="ground" cx="120" cy="134" rx="104" ry="9" />
+        <g clip-path="url(#feed)"><rect class="sheet sheet-in" x="72" y="10" width="96" height="44" rx="3" /></g>
+        <rect x="22" y="40" width="196" height="26" rx="9" fill="url(#lid)" />
+        <rect x="16" y="58" width="208" height="62" rx="12" fill="url(#shell)" />
+        <rect x="16" y="58" width="208" height="5" fill="#00000014" />
+        <rect x="150" y="71" width="60" height="19" rx="5" fill="#1b1a19" />
+        <circle class="led" cx="161" cy="80.500" r="2.6" />
+        <rect x="170" y="78" width="14" height="5" rx="2.5" fill="#3a3835" />
+        <rect x="188" y="78" width="14" height="5" rx="2.5" fill="#3a3835" />
+        <rect x="42" y="98" width="156" height="12" rx="6" fill="url(#slot)" />
+        <g clip-path="url(#exit)">
+          <g class="sheet-out">
+            <rect class="sheet" x="58" y="100" width="124" height="40" rx="3" />
+            <path class="ink-lines" d="M70 111h64M70 119h88M70 127h46" />
+          </g>
+        </g>
+      </svg>
+
+      <div class="count">
+        <span class="count-number" id="count">0</span>
+        <span class="count-label" id="count-label">na fila</span>
+      </div>
+    </section>
+
+    <label class="picker">
+      <span class="picker-label">Impressora</span>
+      <select id="printer"></select>
+      <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.500 4.500 6 8l3.500-3.500" /></svg>
+    </label>
+
+    <section class="tanks" aria-label="Tinta">
+      <div class="tank" data-ink="k">
+        <div class="tank-head"><span>Preto</span><span class="tank-value">—</span></div>
+        <div class="tank-bar"><i></i></div>
+      </div>
+      <div class="tank" data-ink="cmy">
+        <div class="tank-head"><span>Colorido</span><span class="tank-value">—</span></div>
+        <div class="tank-bar"><i></i></div>
+      </div>
+      <p class="tanks-note">Nível de tinta ainda sem leitura</p>
+    </section>
+
+    <section class="queue">
+      <h2><span>Fila</span><span class="rule"></span></h2>
+      <ul class="jobs" id="jobs"></ul>
+      <p class="empty" id="empty">Nada esperando para imprimir.</p>
+    </section>
+
+    <footer class="actions">
+      <p class="notice" id="notice" role="status"></p>
+      <div class="buttons">
+        <button class="button primary" id="clear">Limpar tudo</button>
+        <button class="button ghost" id="force" title="Reinicia o spooler e apaga a fila de todas as impressoras">Forçar</button>
+      </div>
+    </footer>
+
+    <div class="sheet-overlay" id="confirm" hidden>
+      <div class="dialog">
+        <h3>Forçar limpeza?</h3>
+        <p>Reinicia o spooler do Windows e apaga a fila de <strong>todas</strong> as impressoras, não só desta.</p>
+        <p class="muted">O Windows vai pedir permissão de administrador.</p>
+        <div class="buttons">
+          <button class="button ghost" id="confirm-no">Voltar</button>
+          <button class="button danger" id="confirm-yes">Forçar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet-overlay" id="settings" hidden>
+      <div class="dialog">
+        <h3>Ajustes</h3>
+        <label class="switch-row">
+          <span>Iniciar com o Windows</span>
+          <input type="checkbox" id="autostart">
+          <span class="switch"></span>
+        </label>
+        <div class="buttons">
+          <button class="button ghost" id="quit">Sair do app</button>
+          <button class="button primary" id="settings-close">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
