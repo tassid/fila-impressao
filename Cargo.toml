@@ -1,0 +1,13 @@
+[package]
+name = "fila-impressao"
+version = "0.1.0"
+edition = "2021"
+description = "Janelinha para ver e limpar a fila de impressão do Windows"
+
+[dependencies]
+eframe = { version = "0.31", default-features = false, features = ["default_fonts", "glow"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true
