@@ -79,9 +79,41 @@ pub fn printer_status_text(status: u32, attributes: u32) -> &'static str {
     }
 }
 
+/// True when the job is stuck on something the user has to deal with.
+pub fn job_has_problem(flags: u32) -> bool {
+    flags & (JOB_ERROR | JOB_OFFLINE | JOB_PAPEROUT | JOB_USER_INTERVENTION | JOB_BLOCKED) != 0
+}
+
+pub fn printer_has_problem(status: u32, attributes: u32) -> bool {
+    let problems = PRINTER_OFFLINE
+        | PRINTER_PAPER_JAM
+        | PRINTER_PAPER_OUT
+        | PRINTER_DOOR_OPEN
+        | PRINTER_NO_TONER
+        | PRINTER_USER_INTERVENTION
+        | PRINTER_ERROR;
+    status & problems != 0 || attributes & ATTRIBUTE_WORK_OFFLINE != 0
+}
+
+pub fn printer_is_printing(status: u32) -> bool {
+    status & PRINTER_PRINTING != 0
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn problems_are_flagged_but_normal_states_are_not() {
+        assert!(job_has_problem(JOB_ERROR | JOB_PRINTING));
+        assert!(job_has_problem(JOB_PAPEROUT));
+        assert!(!job_has_problem(JOB_PRINTING | JOB_SPOOLING | JOB_PAUSED | JOB_DELETING));
+        assert!(printer_has_problem(PRINTER_PAPER_JAM, 0));
+        assert!(printer_has_problem(0, ATTRIBUTE_WORK_OFFLINE));
+        assert!(!printer_has_problem(PRINTER_PRINTING | PRINTER_PAUSED, 0));
+        assert!(printer_is_printing(PRINTER_PRINTING));
+        assert!(!printer_is_printing(0));
+    }
 
     #[test]
     fn job_without_flags_is_waiting() {

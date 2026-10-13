@@ -1,12 +1,18 @@
 [package]
 name = "fila-impressao"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
-description ="Janelinha para ver e limpar a fila de impressão do Windows"
+description = "Painel na bandeja do Windows para ver e limpar a fila de impressão"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-eframe = { version = "0.31", default-features = false, features = ["default_fonts", "glow"] }
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = ["tray-icon", "image-png", "custom-protocol"] }
+tauri-plugin-single-instance = "2"
+winreg = "0.52"
 
 [profile.release]
 opt-level = "s"
